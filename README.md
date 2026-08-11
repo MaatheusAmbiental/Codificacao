@@ -13,7 +13,7 @@ fluviometria (Base Hidrográfica Ottocodificada — BHO).
 ## 👉 Se você é operador(a)/servidor(a) da ANA e só quer usar o programa
 
 Não precisa instalar Python nem nada de desenvolvedor. Siga os passos abaixo (ou veja o
-[Manual do Usuário completo em PDF](docs/Manual_do_Usuario.pdf), com todos os detalhes e telas):
+[Manual do Usuário em PDF](docs/Manual_do_Usuario.pdf), com todos os detalhes e telas):
 
 1. **Baixe o programa.** Vá até a aba [**Releases**](../../releases) deste repositório e baixe o
    arquivo `.zip` mais recente (algo como `Codificacao_Hidrologica_vX.X.zip`).
