@@ -8,20 +8,18 @@ Aplicativo desktop para gerar códigos de estações hidrológicas seguindo o pa
 tanto o formato geográfico usado em pluviometria quanto o formato topológico usado em
 fluviometria (Base Hidrográfica Ottocodificada — BHO).
 
-<!--
-  Adicione aqui um screenshot real da tela principal, por exemplo:
-  ![Tela principal do sistema](docs/screenshot.png)
--->
+![Tela principal do sistema](docs/screenshot.png)
 
 ## 👉 Se você é operador(a)/servidor(a) da ANA e só quer usar o programa
 
-Não precisa instalar Python nem nada de desenvolvedor. Siga os passos abaixo:
+Não precisa instalar Python nem nada de desenvolvedor. Siga os passos abaixo (ou veja o
+[Manual do Usuário completo em PDF](docs/Manual_do_Usuario.pdf), com todos os detalhes e telas):
 
 1. **Baixe o programa.** Vá até a aba [**Releases**](../../releases) deste repositório e baixe o
    arquivo `.zip` mais recente (algo como `Codificacao_Hidrologica_vX.X.zip`).
 2. **Extraia** o `.zip` em uma pasta no seu computador (ex.: `C:\Codificacao_Hidrologica`).
 3. **Baixe a pasta `insumo`** (dados geoespaciais — sub-bacias, malha de rios BHO, municípios).
-   Ela não vem no `.zip` por ser muito grande (~20 GB). Peça o link de download pra equipe
+   Ela não vem no `.zip` por ser grande (~4 GB). Peça o link de download pra equipe
    responsável pelo sistema, e coloque a pasta `insumo` **dentro da mesma pasta do
    `Codificacao_Hidrologica.exe`**.
 4. **Configure o acesso ao banco de dados**: copie o arquivo `.env.example` para `.env` (mesma
