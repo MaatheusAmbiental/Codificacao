@@ -1,0 +1,54 @@
+# Ambientes virtuais
+venv/
+venv_clean/
+env/
+ENV/
+
+# Arquivos compilados Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Arquivos de distribuição (o .exe é publicado via GitHub Releases, não versionado aqui)
+dist/
+build/
+*.egg-info/
+
+# Arquivos temporários
+*.tmp
+*.bak
+*.swp
+*~
+
+# Logs
+*.log
+
+# Arquivos de IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Credenciais e configuração local (nunca commitar .env real -- use .env.example como modelo)
+.env
+*.ini
+*.conf
+
+# Bancos de dados e planilhas de teste/uso local
+*.mdb
+*.ldb
+*.accdb
+*.xlsx
+*.xls
+
+# Pasta insumo/ (shapefiles + GPKG, ~22GB) -- distribuída separadamente, não cabe no repositório.
+# Veja o README para onde obter e como organizar localmente.
+insumo/
+
+# Arquivos de saída
+output/
+resultados/
