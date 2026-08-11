@@ -27,8 +27,8 @@ DRIVER_ACCESS = "Microsoft Access Driver (*.mdb, *.accdb)"
 # Insumos (Base BHO6 e Referências)
 GPKG_BHO_DRENAGEM = r"insumo\geoft_bho6_trecho_drenagem.gpkg"
 CAMADA_BHO_TRECHO = "geoft_bho6_trecho_drenagem" 
-SHAPEFILE_MUNICIPIOS = r"insumo\Municipio_IBGE_Hidro.shp"
-SHAPEFILE_SUBBACIAS_DNAEE = r"insumo\GEOFT_DNAEE_SUBBACIA.shp"
+GPKG_MUNICIPIOS = r"insumo\Municipio_IBGE_Hidro.gpkg"
+GPKG_SUBBACIAS_DNAEE = r"insumo\geoft_dnaee_subbacia.gpkg"
 TEMPLATE_MDB = r"insumo\mdb\template.mdb"
 
 # Sistemas de Referência (Nota Técnica 05/2024)
@@ -427,8 +427,8 @@ class BaseManager:
         self.sql_conn_str = (f"DRIVER={{{DRIVER_SQL_SERVER}}};SERVER={os.getenv('DB_HOST')};"
                              f"DATABASE={os.getenv('DB_NAME')};UID={os.getenv('DB_USER')};"
                              f"PWD={os.getenv('DB_PASSWORD')};")
-        self.gdf_mun = self._carregar_shape(SHAPEFILE_MUNICIPIOS)
-        self.gdf_sub = self._carregar_shape(SHAPEFILE_SUBBACIAS_DNAEE)
+        self.gdf_mun = self._carregar_shape(GPKG_MUNICIPIOS)
+        self.gdf_sub = self._carregar_shape(GPKG_SUBBACIAS_DNAEE)
         self.next_reg_id = self._buscar_ultimo_reg_id()
 
     def _carregar_shape(self, path: str):
