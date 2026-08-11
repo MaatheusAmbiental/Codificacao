@@ -18,12 +18,15 @@ Não precisa instalar Python nem nada de desenvolvedor. Siga os passos abaixo (o
 1. **Baixe o programa.** Vá até a aba [**Releases**](../../releases) deste repositório e baixe o
    arquivo `.zip` mais recente (algo como `Codificacao_Hidrologica_vX.X.zip`).
 2. **Extraia** o `.zip` em uma pasta no seu computador (ex.: `C:\Codificacao_Hidrologica`).
-3. **Baixe a pasta `insumo`** (dados geoespaciais — sub-bacias, malha de rios BHO, municípios).
-   Ela não vem no `.zip` por ser grande (~4 GB). Peça o link de download pra equipe
-   responsável pelo sistema, e coloque a pasta `insumo` **dentro da mesma pasta do
+3. **Copie a pasta `insumo`** (dados geoespaciais — sub-bacias, malha de rios BHO, municípios).
+   Ela não vem no `.zip` por ser grande (~4 GB). Está disponível na rede interna da ANA em:
+   ```
+   \\agencia\ana\SGH\CODIH\Base de Dados Geograficos
+   ```
+   Copie essa pasta (renomeando para `insumo`, se necessário) pra **dentro da mesma pasta do
    `Codificacao_Hidrologica.exe`**.
 4. **Configure o acesso ao banco de dados**: copie o arquivo `.env.example` para `.env` (mesma
-   pasta do `.exe`) e peça as credenciais do banco `HIDRO` pra equipe responsável.
+   pasta do `.exe`) e peça as credenciais do banco `HIDRO` pra equipe responsável pelo sistema.
 5. **Dê dois cliques em `Codificacao_Hidrologica.exe`** e pronto.
 
 A pasta final deve ficar assim:
