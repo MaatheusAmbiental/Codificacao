@@ -1,0 +1,9 @@
+# Garante que arquivos binários nunca sejam tocados pela conversão de fim de linha do git
+# (core.autocrlf=true globalmente convertia LF/CRLF até em PDFs e imagens, corrompendo-os).
+*.pdf binary
+*.png binary
+*.ico binary
+*.gpkg binary
+*.mdb binary
+*.xlsx binary
+*.zip binary

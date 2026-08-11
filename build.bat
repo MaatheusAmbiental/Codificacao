@@ -23,7 +23,7 @@ echo.
 echo [FASE 3/5] Instalando dependencias no ambiente atual...
 python -m pip install --upgrade pip
 :: Garante que as libs críticas para a GUI e o build estejam presentes
-python -m pip install pyinstaller==6.5.0 PySide6 python-dotenv openpyxl
+python -m pip install pyinstaller PySide6 python-dotenv openpyxl
 :: Instala o restante das dependências de geoprocessamento
 python -m pip install -r requirements.txt
 echo.
@@ -41,14 +41,16 @@ if %errorlevel% neq 0 (
 echo.
 
 :: 5. COPIA DE RECURSOS EXTERNOS
+:: Codificacao_Hidrologica.spec gera um .exe unico (onefile) -- resource_path() procura
+:: 'assets' e 'insumo' no MESMO diretorio do .exe (dist\), nao numa subpasta com o nome dele.
 echo [FASE 5/5] Copiando pastas 'assets' e 'insumo' para o diretorio final...
-xcopy "assets" "dist\Codificacao_Hidrologica\assets" /E /I /Y > nul
-xcopy "insumo" "dist\Codificacao_Hidrologica\insumo" /E /I /Y > nul
+xcopy "assets" "dist\assets" /E /I /Y > nul
+if exist "insumo" xcopy "insumo" "dist\insumo" /E /I /Y > nul
 
 echo.
 echo =================================================================
 echo      CONCLUIDO!
-echo      Seu aplicativo esta em 'dist\Codificacao_Hidrologica'.
+echo      Seu aplicativo esta em 'dist\Codificacao_Hidrologica.exe'.
 echo =================================================================
 pause
 endlocal

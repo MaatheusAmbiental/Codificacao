@@ -11,6 +11,6 @@ python-dotenv>=1.0.0
 numpy==1.26.4
 openpyxl>=3.1.2
 pywin32>=306
-pyinstaller==6.5.0
+pyinstaller>=6.20.0
 jaraco.text>=3.11.0
 platformdirs>=3.0.0

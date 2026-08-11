@@ -1,0 +1,322 @@
+<html>
+<head>
+<style>
+    @page {
+        size: A4;
+        margin: 2.2cm 2cm 2.2cm 2cm;
+    }
+    body {
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 10.5pt;
+        color: #1a1a1a;
+        line-height: 1.5;
+    }
+    h1 { color: #0078d4; font-size: 20pt; margin-top: 0; }
+    h2 { color: #0078d4; font-size: 15pt; border-bottom: 1px solid #0078d4; padding-bottom: 3px; margin-top: 22px; }
+    h3 { color: #106ebe; font-size: 12.5pt; margin-top: 16px; }
+    a { color: #0078d4; }
+    .capa {
+        text-align: center;
+        margin-top: 120px;
+    }
+    .capa h1 { font-size: 26pt; margin-bottom: 4px; }
+    .capa .subtitulo { font-size: 13pt; color: #444444; margin-bottom: 40px; }
+    .capa .versao { font-size: 10pt; color: #777777; margin-top: 60px; }
+    .caixa {
+        background-color: #F5F5F5;
+        border-left: 4px solid #0078d4;
+        padding: 8px 14px;
+        margin: 12px 0;
+    }
+    .caixa-aviso {
+        background-color: #FFF3E0;
+        border-left: 4px solid #E67E22;
+        padding: 8px 14px;
+        margin: 12px 0;
+    }
+    .caixa-erro {
+        background-color: #FDECEA;
+        border-left: 4px solid #C0392B;
+        padding: 8px 14px;
+        margin: 12px 0;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+    }
+    th, td {
+        border: 1px solid #CCCCCC;
+        padding: 5px 8px;
+        text-align: left;
+        font-size: 9.5pt;
+    }
+    th { background-color: #0078d4; color: #FFFFFF; }
+    tr:nth-child(even) { background-color: #F7F7F7; }
+    code {
+        background-color: #EEEEEE;
+        padding: 1px 4px;
+        font-family: Courier, monospace;
+    }
+    .pagebreak { page-break-before: always; }
+    table, .caixa, .caixa-aviso, .caixa-erro { page-break-inside: avoid; }
+    h2, h3 { page-break-after: avoid; }
+    .rodape-cor { display: inline-block; width: 12px; height: 12px; margin-right: 6px; }
+    ol, ul { margin-top: 4px; }
+    li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<div class="capa">
+    <img src="../assets/ana_logo.png" height="80"/>
+    <h1>Sistema de Codificação Hidrológica</h1>
+    <div class="subtitulo">Manual do Usuário — ANA/SGB</div>
+    <p>Geração de códigos de estações pluviométricas e fluviométricas<br/>
+    seguindo o padrão geográfico e topológico da ANA</p>
+    <div class="versao">Versão do manual: 1.0 — Agosto de 2026</div>
+</div>
+
+<div class="pagebreak"></div>
+
+<h2>1. Introdução</h2>
+<p>
+Este manual explica como instalar e usar o Sistema de Codificação Hidrológica, aplicativo
+desktop que gera códigos de identificação para novas estações da Rede Hidrometeorológica
+Nacional, seguindo os dois padrões usados pela ANA:
+</p>
+<ul>
+    <li><b>Codificação Pluviométrica</b> (geográfica) — usada em estações de chuva,
+    climatológicas e evaporimétricas.</li>
+    <li><b>Codificação Fluviométrica</b> (topológica) — usada em estações de nível e
+    descarga em cursos d'água, baseada na Base Hidrográfica Ottocodificada (BHO).</li>
+</ul>
+<div class="caixa">
+    <b>Antes de começar:</b> este sistema precisa de acesso ao banco de dados
+    <code>HIDRO</code> (SQL Server) para consultar e gerar códigos únicos. Sem conexão com a
+    rede da ANA (ou VPN), o aplicativo abre normalmente, mas não consegue processar
+    nenhuma codificação.
+</div>
+
+<h2>2. Instalação</h2>
+
+<h3>2.1. Baixando o programa</h3>
+<ol>
+    <li>Acesse a página do projeto no GitHub, aba <b>Releases</b>.</li>
+    <li>Baixe o arquivo <code>.zip</code> mais recente (ex.: <code>Codificacao_Hidrologica_vX.X.zip</code>).</li>
+    <li>Extraia o conteúdo em uma pasta de sua preferência, por exemplo <code>C:\Codificacao_Hidrologica</code>.</li>
+</ol>
+
+<h3>2.2. Obtendo a pasta de dados geoespaciais (<code>insumo</code>)</h3>
+<p>
+Por causa do tamanho (alguns gigabytes), a pasta <code>insumo</code> — que contém a malha de
+sub-bacias, a Base Hidrográfica Ottocodificada (BHO) e a malha de municípios — não vem dentro
+do <code>.zip</code>. Ela precisa ser obtida separadamente com a equipe responsável pelo
+sistema e colocada <b>dentro da mesma pasta do executável</b>.
+</p>
+
+<h3>2.3. Configurando o acesso ao banco de dados</h3>
+<ol>
+    <li>Copie o arquivo <code>.env.example</code> (que vem no <code>.zip</code>) e renomeie a cópia para <code>.env</code>.</li>
+    <li>Abra o <code>.env</code> num editor de texto simples (Bloco de Notas) e preencha:</li>
+</ol>
+<table>
+    <tr><th>Campo</th><th>O que é</th></tr>
+    <tr><td><code>DB_HOST</code></td><td>Endereço do servidor SQL Server</td></tr>
+    <tr><td><code>DB_NAME</code></td><td>Nome do banco (normalmente <code>HIDRO</code>)</td></tr>
+    <tr><td><code>DB_USER</code></td><td>Usuário de acesso ao banco</td></tr>
+    <tr><td><code>DB_PASSWORD</code></td><td>Senha correspondente</td></tr>
+</table>
+<p>Peça essas credenciais para a equipe responsável pelo sistema, caso ainda não tenha.</p>
+
+<h3>2.4. Estrutura final de pastas</h3>
+<p>Depois de tudo pronto, a pasta deve ficar assim:</p>
+<div class="caixa">
+<code>
+Codificacao_Hidrologica\<br/>
+&nbsp;&nbsp;├── Codificacao_Hidrologica.exe<br/>
+&nbsp;&nbsp;├── .env&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(suas credenciais do banco)<br/>
+&nbsp;&nbsp;├── assets\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(ícones e logos, já vem no zip)<br/>
+&nbsp;&nbsp;└── insumo\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(baixado à parte, veja item 2.2)
+</code>
+</div>
+<p>Dê dois cliques em <code>Codificacao_Hidrologica.exe</code> para abrir o programa.</p>
+
+<div class="pagebreak"></div>
+
+<h2>3. Visão Geral da Interface</h2>
+<p>A tela principal do sistema é dividida nas seguintes áreas, de cima para baixo:</p>
+<ol>
+    <li><b>Tipo de Codificação</b> — escolha entre Pluviométrica ou Fluviométrica.</li>
+    <li><b>Origem dos Dados</b> — escolha entre cadastrar manualmente ou importar um arquivo.</li>
+    <li><b>Formulário de cadastro</b> (quando "Cadastrar manualmente" está selecionado).</li>
+    <li><b>Lista de estações pendentes</b> — o que você já adicionou e ainda não processou.</li>
+    <li><b>Tabela de resultados</b> — aparece depois de clicar em "Processar".</li>
+    <li><b>Botões de ação</b> — Processar, Cancelar e Exportar Resultados.</li>
+</ol>
+
+<h2>4. Tipo de Codificação</h2>
+
+<h3>4.1. Pluviométrica (Geográfica)</h3>
+<p>
+Baseada em quadrantes de Latitude/Longitude. O código segue o formato clássico
+<code>0LLLOOONNN</code> (0 fixo + Latitude + Longitude + sequencial). Essa lógica está
+<b>consolidada</b>: o sistema consulta o banco de dados e gera o próximo código disponível
+automaticamente, com alta confiança.
+</p>
+
+<h3>4.2. Fluviométrica (Topológica)</h3>
+<div class="caixa-aviso">
+<b>Atenção:</b> a codificação fluviométrica histórica da ANA/DNAEE é, em grande parte, uma
+atribuição manual baseada no julgamento de um hidrólogo — o código de cada estação segue a
+ordem do rio (montante → jusante), respeitando afluentes, mas sem uma fórmula geométrica
+exata. Por isso, os resultados desta codificação vêm marcados com um nível de confiança e
+<b>devem ser revisados antes de exportar</b> (veja o item 7).
+</div>
+<p>
+O sistema usa a Base Hidrográfica Ottocodificada (BHO) e agrupa as estações de referência já
+existentes pelo <code>RioCodigo</code> oficial (não apenas pelo trecho geométrico da malha
+moderna), interpolando o código da estação nova entre a referência mais próxima a montante e a
+mais próxima a jusante.
+</p>
+<p>Os níveis de confiança que você pode encontrar na coluna "Confiabilidade" são:</p>
+<table>
+    <tr><th>Nível</th><th>O que significa</th></tr>
+    <tr><td><b>Interpolado (RioCodigo confirmado)</b></td><td>Há estações oficiais conhecidas tanto a montante quanto a jusante, no mesmo rio confirmado. Maior confiança.</td></tr>
+    <tr><td><b>Interpolado (RioCodigo herdado do vizinho)</b></td><td>O rio da estação nova foi inferido pela estação oficial mais próxima geograficamente, não por uma correspondência exata no trecho.</td></tr>
+    <tr><td><b>Extrapolado (só montante / só jusante)</b></td><td>Só havia referência de um dos lados — o código foi estimado a partir dela.</td></tr>
+    <tr><td><b>Fallback (sub-bacia)</b></td><td>Não havia nenhuma referência próxima. O código foi estimado com base apenas na sub-bacia. <b>Requer atenção redobrada.</b></td></tr>
+</table>
+
+<div class="pagebreak"></div>
+
+<h2>5. Origem dos Dados</h2>
+<p>Existem três formas de informar os dados de uma estação nova ao sistema:</p>
+
+<h3>5.1. Cadastrar estações manualmente (recomendado)</h3>
+<p>Preencha o formulário na própria tela. Campos disponíveis:</p>
+<table>
+    <tr><th>Campo</th><th>Obrigatório?</th><th>Observações</th></tr>
+    <tr><td>Nome</td><td>Sim</td><td>Nome da estação</td></tr>
+    <tr><td>Latitude / Longitude</td><td>Sim</td><td>Graus decimais, ex.: -15.793889. Se a coordenada parecer fora do Brasil, o sistema avisa antes de aceitar.</td></tr>
+    <tr><td>Área de Drenagem</td><td>Não</td><td>Em km²</td></tr>
+    <tr><td>Código Adicional</td><td>Não</td><td>Referência externa, se houver</td></tr>
+    <tr><td>Responsável / Operadora</td><td>Não</td><td>Escolha na lista de entidades da ANA</td></tr>
+    <tr><td>UF do Responsável / da Operadora</td><td>Não</td><td>Estado (ou país, para bacias transfronteiriças) de cada entidade</td></tr>
+    <tr><td>Tipo (Pluviômetro, Escala, Telemétrica, etc.)</td><td>Ao menos 1</td><td>Marque os parâmetros medidos pela estação. A lista muda conforme o tipo de codificação escolhido; Telemétrica aparece sempre.</td></tr>
+    <tr><td>Início / Fim de cada parâmetro marcado</td><td>Não</td><td>Data de início e fim de operação daquele parâmetro específico (dd/mm/aaaa ou mm/aaaa). <b>Deixe o Fim em branco se o parâmetro ainda está em operação</b> — o sistema calcula automaticamente se a estação está ativa com base nisso.</td></tr>
+</table>
+<p>
+Depois de preencher, clique em <b>"Adicionar à lista"</b>. A estação aparece na tabela de
+pendentes logo abaixo, e o formulário é limpo para a próxima. Repita para cada estação nova.
+Para remover uma estação da lista, selecione a linha e clique em <b>"Remover selecionada"</b>.
+</p>
+
+<h3>5.2. Importar Excel simples</h3>
+<p>
+Se você já tem os dados numa planilha, clique em <b>"Importar Excel simples..."</b>. A
+planilha precisa ter, no mínimo, as colunas <b>Nome</b>, <b>Latitude</b> e <b>Longitude</b>
+(o sistema aceita variações de cabeçalho, como "Lat"/"Lon"). Colunas opcionais reconhecidas:
+<code>AreaDrenagem</code>, <code>ResponsavelCodigo</code>, <code>OperadoraCodigo</code>,
+<code>CodigoAdicional</code>.
+</p>
+<p>
+Depois da importação, o sistema mostra um resumo: quantas estações entraram, quais linhas
+foram ignoradas (e por quê) e quais entraram com algum aviso — por exemplo, coordenada fora
+do Brasil ou código de responsável não reconhecido. As estações importadas vão para a mesma
+lista de pendentes do cadastro manual, e podem ser revisadas ou removidas do mesmo jeito.
+</p>
+
+<h3>5.3. Importar arquivo <code>.mdb</code> existente (modo avançado)</h3>
+<p>
+Para quem já mantém os dados numa base Access, selecione "Importar arquivo .mdb existente" e
+escolha o arquivo. Ele precisa conter uma tabela chamada <code>Estacoes_Novas</code> com as
+estações a codificar (linhas com o campo <code>Codigo</code> em branco).
+</p>
+
+<div class="pagebreak"></div>
+
+<h2>6. Processando a Codificação</h2>
+<ol>
+    <li>Confira se o <b>Tipo de Codificação</b> (Pluviométrica/Fluviométrica) está correto.</li>
+    <li>Confira se a <b>Origem dos Dados</b> tem ao menos uma estação pronta (lista de
+    pendentes preenchida, ou um arquivo selecionado).</li>
+    <li>Clique em <b>"PROCESSAR CODIFICAÇÃO"</b>.</li>
+    <li>A barra de progresso mostra o andamento. Um botão <b>"CANCELAR"</b> aparece durante o
+    processamento, caso seja necessário interromper.</li>
+    <li>Ao final, uma mensagem confirma a conclusão e a tabela de resultados é preenchida.</li>
+</ol>
+<div class="caixa-erro">
+<b>Erros comuns:</b>
+<ul>
+    <li><b>Falha de conexão com o banco</b> — verifique se está na rede/VPN da ANA e se as
+    credenciais no <code>.env</code> estão corretas.</li>
+    <li><b>Arquivo de insumo não encontrado</b> — confira se a pasta <code>insumo</code> está
+    no mesmo diretório do executável e contém todos os arquivos esperados.</li>
+    <li><b>Tabela "Estacoes_Novas" não encontrada</b> — o arquivo <code>.mdb</code>
+    selecionado não é o esperado; use o modo de cadastro manual como alternativa.</li>
+</ul>
+</div>
+
+<h2>7. Revisando os Resultados</h2>
+<p>
+A tabela de resultados mostra, para cada estação: Nome, Latitude, Longitude, Bacia/Sub-bacia,
+informações da malha BHO6 (fluviométrica), o <b>Código gerado</b> e a <b>Confiabilidade</b>.
+</p>
+<ul>
+    <li>A célula do <b>Código gerado</b> é editável — dê duplo clique para ajustar o valor
+    manualmente antes de exportar, se necessário. Essa é a forma recomendada de corrigir um
+    código fluviométrico que você, como especialista, sabe que deveria ser diferente.</li>
+    <li>Se o código editado colidir com outro já usado na mesma lista, o sistema avisa (a
+    exportação usa o valor editado mesmo assim — ajuste se for o caso).</li>
+    <li>A cor da coluna Confiabilidade ajuda a identificar rapidamente quais estações merecem
+    mais atenção antes de exportar (veja a tabela do item 4.2).</li>
+</ul>
+
+<h2>8. Exportando os Resultados</h2>
+<p>
+Clique em <b>"EXPORTAR RESULTADOS"</b> e escolha o formato:
+</p>
+<ul>
+    <li><b>Excel (.xlsx)</b> — uma planilha com todas as colunas processadas.</li>
+    <li><b>Access (.mdb)</b> — gera um arquivo a partir do template oficial da ANA, pronto
+    para importação no sistema HIDRO.</li>
+</ul>
+
+<div class="pagebreak"></div>
+
+<h2>9. Perguntas Frequentes</h2>
+
+<h3>O aplicativo abre, mas trava ao clicar em "Processar". O que fazer?</h3>
+<p>
+Confira sua conexão com a rede/VPN da ANA. A primeira etapa do processamento conecta no banco
+de dados e carrega os arquivos da pasta <code>insumo</code>, que pode levar alguns segundos —
+isso é esperado, não é travamento.</p>
+
+<h3>Por que a Fluviométrica pede mais atenção que a Pluviométrica?</h3>
+<p>
+Porque a codificação pluviométrica segue uma regra geográfica exata (quadrante de
+Lat/Lon), enquanto a fluviométrica historicamente depende de decisões tomadas por
+hidrólogos ao longo de décadas. O sistema faz o melhor possível com os dados disponíveis, mas
+sempre vale a revisão de quem conhece o rio.</p>
+
+<h3>Posso cadastrar uma estação sem saber o Responsável/Operadora?</h3>
+<p>Sim, esses campos são opcionais. Deixe como "(não informado)" se não souber.</p>
+
+<h3>O que acontece se eu deixar o campo "Fim" em branco num parâmetro?</h3>
+<p>
+Significa que aquele parâmetro (ex.: Escala, Sedimentos) ainda está em operação — é a mesma
+convenção usada nos inventários oficiais da ANA. Se pelo menos um parâmetro marcado estiver
+sem Fim, a estação como um todo é considerada em operação.</p>
+
+<h2>10. Suporte</h2>
+<p>
+Em caso de dúvidas, problemas técnicos ou sugestões de melhoria, entre em contato com a
+equipe responsável pelo sistema ou abra uma issue no repositório do projeto no GitHub.
+</p>
+<p style="margin-top:30px; color:#777777; font-size:9pt;">
+Desenvolvido por Matheus da Silva Castro — Licença MIT
+</p>
+
+</body>
+</html>
