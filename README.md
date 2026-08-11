@@ -87,9 +87,9 @@ python Codificacao_GUI.py
 ```powershell
 build.bat
 ```
-O script instala as dependências, roda o PyInstaller com `Codificacao_Hidrologica.spec` e copia
-`assets/` para dentro de `dist\Codificacao_Hidrologica\`. A pasta `insumo/` **não** é copiada
-automaticamente pelo build — some ela manualmente (ou via link/atalho) antes de distribuir.
+O script instala as dependências, roda o PyInstaller com `Codificacao_Hidrologica.spec` (gera um
+`.exe` único) e copia `assets/` para dentro de `dist\`, ao lado do executável — e `insumo/`
+também, se ela já existir localmente nesse momento (senão, copie manualmente depois).
 
 ## 📦 Estrutura do projeto
 
