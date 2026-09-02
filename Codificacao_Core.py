@@ -1,6 +1,7 @@
 import os
 import sys
 import pyodbc
+import numpy as np
 import pandas as pd
 import geopandas as gpd
 from sqlalchemy import create_engine
@@ -395,6 +396,46 @@ def resource_path(relative_path: str) -> str:
     return os.path.join(base_path, relative_path)
 
 
+def _valor_sql(valor, tipo_coluna: Optional[str] = None):
+    """Converte valores vindos do GeoPandas/NumPy (int32, int64, float64...) para tipos nativos
+    do Python -- o driver ODBC do Access rejeita tipos numpy como parâmetro de INSERT
+    ('Tipo de dados incompatível na expressão de critério'). Também converte pra string
+    quando a coluna real no Access é VARCHAR mas o valor calculado é numérico (o template
+    oficial guarda até campos como Codigo/RegistroID como texto, não número)."""
+    if pd.isna(valor):
+        return None
+    if isinstance(valor, np.generic):
+        valor = valor.item()
+    if tipo_coluna == 'VARCHAR' and not isinstance(valor, str):
+        if isinstance(valor, float) and valor.is_integer():
+            valor = int(valor)
+        valor = str(valor)
+    return valor
+
+
+def montar_sql_conn_str() -> str:
+    return (f"DRIVER={{{DRIVER_SQL_SERVER}}};SERVER={os.getenv('DB_HOST')};"
+            f"DATABASE={os.getenv('DB_NAME')};UID={os.getenv('DB_USER')};"
+            f"PWD={os.getenv('DB_PASSWORD')};")
+
+
+def carregar_entidades_atualizadas() -> Dict[int, str]:
+    """
+    Busca a lista de entidades responsáveis/operadoras direto de HIDRO.dbo.Entidade (mais
+    de 1300 registros, sempre atualizada). Se o banco não estiver acessível agora (sem
+    VPN, por exemplo), cai no fallback estático ENTIDADES_RESPONSAVEIS (Tabela 4 do
+    Inventário ANA/2009 — só ~300 entidades, mas melhor que uma lista vazia).
+    """
+    try:
+        with pyodbc.connect(montar_sql_conn_str(), timeout=4) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT Codigo, Sigla, Nome FROM HIDRO.dbo.Entidade WHERE Removido = 0 ORDER BY Codigo")
+            entidades = {r[0]: f"{r[1]} {r[2]}" for r in cursor.fetchall() if r[0] is not None}
+            return entidades if entidades else ENTIDADES_RESPONSAVEIS
+    except Exception:
+        return ENTIDADES_RESPONSAVEIS
+
+
 class ProcessamentoCancelado(Exception):
     """Levantada quando o usuário cancela o processamento em andamento."""
     pass
@@ -424,9 +465,7 @@ def traduzir_erro(exc: Exception) -> str:
 
 class BaseManager:
     def __init__(self):
-        self.sql_conn_str = (f"DRIVER={{{DRIVER_SQL_SERVER}}};SERVER={os.getenv('DB_HOST')};"
-                             f"DATABASE={os.getenv('DB_NAME')};UID={os.getenv('DB_USER')};"
-                             f"PWD={os.getenv('DB_PASSWORD')};")
+        self.sql_conn_str = montar_sql_conn_str()
         self.avisos_insumo: List[str] = []
         self.gdf_mun = self._carregar_shape(GPKG_MUNICIPIOS, "Malha de Municípios (IBGE)")
         self.gdf_sub = self._carregar_shape(GPKG_SUBBACIAS_DNAEE, "Sub-bacias DNAEE")
@@ -478,7 +517,7 @@ class BaseManager:
                 cursor = conn.cursor()
                 cursor.execute(f"SELECT MAX(RegistroID) FROM {TABELA_ESTACAO_SQL}")
                 res = cursor.fetchone()[0]
-                return (res or 0) + 1
+                return int(res or 0) + 1
         except: return 1
 
     def preencher_geografico(self, reg: Dict, ponto: Point) -> Dict:
@@ -488,8 +527,13 @@ class BaseManager:
         if self.gdf_mun is not None:
             res_mun = gpd.sjoin(p_gdf, self.gdf_mun, how='left', predicate='intersects')
             if not res_mun.empty:
-                reg['MunicipioCodigo'] = res_mun.at[0, 'dbo__Mun_2'] if pd.isna(reg.get('MunicipioCodigo')) else reg['MunicipioCodigo']
-                reg['EstadoCodigo'] = res_mun.at[0, 'BR_Munic_8'] if pd.isna(reg.get('EstadoCodigo')) else reg['EstadoCodigo']
+                municipio_codigo = res_mun.at[0, 'dbo__Mun_2']
+                if pd.isna(reg.get('MunicipioCodigo')):
+                    reg['MunicipioCodigo'] = municipio_codigo
+                # EstadoCodigo (código HIDRO da UF, não a sigla) é o prefixo do MunicipioCodigo:
+                # MunicipioCodigo = EstadoCodigo * 1_000_000 + sequencial (ex.: 27001000 -> UF 27 = DF).
+                if pd.isna(reg.get('EstadoCodigo')) and pd.notna(municipio_codigo):
+                    reg['EstadoCodigo'] = int(municipio_codigo) // 1_000_000
             p_gdf = p_gdf.drop(columns=['index_right'], errors='ignore')
 
         if self.gdf_sub is not None:
@@ -512,13 +556,17 @@ class BaseManager:
                 cursor = conn.cursor()
                 # O template.mdb real pode ter menos colunas do que COLUNAS_TEMPLATE_MDB
                 # (ex.: 'Operando', 'Descricao' não existem na tabela atual) -- inserir só as
-                # que realmente existem evita erro de "coluna não encontrada" no INSERT.
-                colunas_reais = {c.column_name for c in cursor.columns(table=TABELA_NOVAS_MDB)}
+                # que realmente existem evita erro de "coluna não encontrada" no INSERT. Os
+                # tipos reais (VARCHAR/DOUBLE/DATETIME) também variam campo a campo -- usados
+                # em _valor_sql pra converter corretamente (ex.: Codigo é VARCHAR no template).
+                info_colunas = list(cursor.columns(table=TABELA_NOVAS_MDB))
+                colunas_reais = {c.column_name for c in info_colunas}
+                tipos_colunas = {c.column_name: c.type_name for c in info_colunas}
                 colunas_insercao = [c for c in COLUNAS_TEMPLATE_MDB if c in colunas_reais]
                 cols_sql = ",".join([f"[{c}]" for c in colunas_insercao])
                 placeholders = ",".join(["?" for _ in colunas_insercao])
                 for _, row in df_final.iterrows():
-                    vals = [None if pd.isna(row.get(c)) else row.get(c) for c in colunas_insercao]
+                    vals = [_valor_sql(row.get(c), tipos_colunas.get(c)) for c in colunas_insercao]
                     cursor.execute(f"INSERT INTO {TABELA_NOVAS_MDB} ({cols_sql}) VALUES ({placeholders})", tuple(vals))
                 conn.commit()
         else:

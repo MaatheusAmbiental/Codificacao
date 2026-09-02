@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PySide6.QtCore import Qt, QThread, Signal, QObject
 from PySide6.QtGui import QFont, QPixmap, QColor, QDoubleValidator
 from Codificacao_Core import (ManagerPluviometrica, ManagerFluviometrica, resource_path,
-                               traduzir_erro, ENTIDADES_RESPONSAVEIS, UNIDADES_HIDRO)
+                               traduzir_erro, carregar_entidades_atualizadas, UNIDADES_HIDRO)
 
 # Campos de tipo de estação exibidos no formulário de cadastro manual, conforme a codificação escolhida
 FLUVIO_TIPO_FIELDS = [
@@ -116,6 +116,9 @@ class MainWindow(QMainWindow):
         self.worker = None
         self.checks_tipo = {}
         self.inputs_periodo = {}
+        # Tenta buscar a lista atualizada de entidades no banco (HIDRO.dbo.Entidade); cai no
+        # fallback estático automaticamente se não houver conexão agora (ex.: sem VPN).
+        self.entidades = carregar_entidades_atualizadas()
         self.setup_ui()
 
     def setup_ui(self):
@@ -320,8 +323,8 @@ class MainWindow(QMainWindow):
         self.combo_operadora = QComboBox()
         for combo in (self.combo_responsavel, self.combo_operadora):
             combo.addItem("(não informado)", None)
-            for codigo in sorted(ENTIDADES_RESPONSAVEIS):
-                combo.addItem(f"{codigo} — {ENTIDADES_RESPONSAVEIS[codigo]}", codigo)
+            for codigo in sorted(self.entidades):
+                combo.addItem(f"{codigo} — {self.entidades[codigo]}", codigo)
             self._tornar_pesquisavel(combo)
 
         self.combo_responsavel_unidade = QComboBox()
@@ -524,8 +527,8 @@ class MainWindow(QMainWindow):
             self.tabela_pendentes.setItem(i, 0, QTableWidgetItem(str(linha.get('Nome', ''))))
             self.tabela_pendentes.setItem(i, 1, QTableWidgetItem(f"{linha.get('Latitude', 0):.6f}"))
             self.tabela_pendentes.setItem(i, 2, QTableWidgetItem(f"{linha.get('Longitude', 0):.6f}"))
-            resp = ENTIDADES_RESPONSAVEIS.get(linha.get('ResponsavelCodigo'), '')
-            oper = ENTIDADES_RESPONSAVEIS.get(linha.get('OperadoraCodigo'), '')
+            resp = self.entidades.get(linha.get('ResponsavelCodigo'), '')
+            oper = self.entidades.get(linha.get('OperadoraCodigo'), '')
             self.tabela_pendentes.setItem(i, 3, QTableWidgetItem(resp))
             self.tabela_pendentes.setItem(i, 4, QTableWidgetItem(oper))
 
@@ -637,7 +640,7 @@ class MainWindow(QMainWindow):
                     avisos.append(f"Linha {num_linha} ({nome}): código de {rotulo} '{row[col]}' não é um número "
                                    "válido, ignorado")
                     continue
-                if codigo not in ENTIDADES_RESPONSAVEIS:
+                if codigo not in self.entidades:
                     avisos.append(f"Linha {num_linha} ({nome}): código de {rotulo} {codigo} não consta na "
                                    "tabela de entidades da ANA — importado mesmo assim, confira se não foi "
                                    "digitado errado")
