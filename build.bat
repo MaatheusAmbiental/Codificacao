@@ -22,8 +22,11 @@ echo.
 :: 3. INSTALAÇÃO DE DEPENDÊNCIAS
 echo [FASE 3/5] Instalando dependencias no ambiente atual...
 python -m pip install --upgrade pip
-:: Garante que as libs críticas para a GUI e o build estejam presentes
-python -m pip install pyinstaller PySide6 python-dotenv openpyxl
+:: Garante que as libs críticas para a GUI e o build estejam presentes E atualizadas --
+:: sem --upgrade, o pip pula pacotes ja instalados (mesmo desatualizados/desalinhados
+:: entre si, ex.: pyinstaller x pyinstaller-hooks-contrib), o que ja causou builds
+:: quebrados aqui (SubprocessDiedError no hook do PySide6.QtNetwork).
+python -m pip install --upgrade pyinstaller pyinstaller-hooks-contrib PySide6 python-dotenv openpyxl
 :: Instala o restante das dependências de geoprocessamento
 python -m pip install -r requirements.txt
 echo.
