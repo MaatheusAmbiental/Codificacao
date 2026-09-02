@@ -43,13 +43,21 @@ if %errorlevel% neq 0 (
 )
 echo.
 
-:: 5. COPIA DE RECURSOS EXTERNOS
+:: 5. LIGACAO DE RECURSOS EXTERNOS (sem duplicar dados em disco)
 :: Codificacao_Hidrologica.spec gera um .exe unico (onefile) -- resource_path() procura
-:: 'assets' e 'insumo' no MESMO diretorio do .exe (dist\), nao numa subpasta com o nome dele.
-echo [FASE 5/5] Copiando pastas 'assets', 'mdb' e 'insumo' para o diretorio final...
-xcopy "assets" "dist\assets" /E /I /Y > nul
-xcopy "mdb" "dist\mdb" /E /I /Y > nul
-if exist "insumo" xcopy "insumo" "dist\insumo" /E /I /Y > nul
+:: 'assets'/'mdb'/'insumo' no MESMO diretorio do .exe (dist\). Em vez de copiar (xcopy),
+:: usamos uma junction (mklink /J): o .exe enxerga as pastas normalmente dentro de dist\,
+:: mas sem duplicar nada em disco -- importante pra 'insumo', que pode ter varios GB.
+:: Junctions nao precisam de privilegio de administrador no Windows.
+echo [FASE 5/5] Vinculando pastas 'assets', 'mdb' e 'insumo' ao diretorio final (sem copiar)...
+if exist "dist\assets" rmdir "dist\assets" 2>nul
+mklink /J "dist\assets" "assets" >nul
+if exist "dist\mdb" rmdir "dist\mdb" 2>nul
+mklink /J "dist\mdb" "mdb" >nul
+if exist "insumo" (
+    if exist "dist\insumo" rmdir "dist\insumo" 2>nul
+    mklink /J "dist\insumo" "insumo" >nul
+)
 
 echo.
 echo =================================================================
