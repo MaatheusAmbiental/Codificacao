@@ -19,7 +19,8 @@ TIPO_ESTACAO_FLUVIOMETRICA = 1
 TIPO_ESTACAO_PLUVIOMETRICA = 2
 COLUNA_SUBBACIA_DNAEE = 'DNS_NU_SUB'
 TABELA_ESTACAO_SQL = 'HIDRO.dbo.Estacao'
-TABELA_NOVAS_MDB = 'Estacoes_Novas'
+TABELA_NOVAS_MDB = 'Estacoes_Novas'  # staging: entrada de estações pendentes (modo "Importar .mdb existente")
+TABELA_EXPORTACAO_MDB = 'Estacao'    # saída: onde o código gerado é gravado no .mdb exportado
 
 # Drivers de Conexão
 DRIVER_SQL_SERVER = "ODBC Driver 17 for SQL Server"
@@ -569,12 +570,12 @@ class BaseManager:
             shutil.copy(resource_path(TEMPLATE_MDB), caminho_saida)
             with pyodbc.connect(f'DRIVER={{{DRIVER_ACCESS}}};DBQ={caminho_saida};') as conn:
                 cursor = conn.cursor()
-                # O template.mdb real pode ter menos colunas do que COLUNAS_TEMPLATE_MDB
-                # (ex.: 'Operando', 'Descricao' não existem na tabela atual) -- inserir só as
-                # que realmente existem evita erro de "coluna não encontrada" no INSERT. Os
-                # tipos reais (VARCHAR/DOUBLE/DATETIME) também variam campo a campo -- usados
-                # em _valor_sql pra converter corretamente (ex.: Codigo é VARCHAR no template).
-                info_colunas = list(cursor.columns(table=TABELA_NOVAS_MDB))
+                # Grava direto na tabela 'Estacao' (schema oficial, com tipos numéricos
+                # corretos: Codigo/BaciaCodigo/etc. são INTEGER de verdade, não texto) --
+                # 'Estacoes_Novas' continua existindo só como staging de entrada pro modo
+                # "Importar .mdb existente". Os tipos reais variam campo a campo; usados em
+                # _valor_sql pra converter corretamente.
+                info_colunas = list(cursor.columns(table=TABELA_EXPORTACAO_MDB))
                 colunas_reais = {c.column_name for c in info_colunas}
                 tipos_colunas = {c.column_name: c.type_name for c in info_colunas}
                 colunas_insercao = [c for c in COLUNAS_TEMPLATE_MDB if c in colunas_reais]
@@ -582,10 +583,12 @@ class BaseManager:
                 placeholders = ",".join(["?" for _ in colunas_insercao])
                 for _, row in df_final.iterrows():
                     vals = [_valor_sql(row.get(c), tipos_colunas.get(c)) for c in colunas_insercao]
-                    cursor.execute(f"INSERT INTO {TABELA_NOVAS_MDB} ({cols_sql}) VALUES ({placeholders})", tuple(vals))
+                    cursor.execute(f"INSERT INTO {TABELA_EXPORTACAO_MDB} ({cols_sql}) VALUES ({placeholders})", tuple(vals))
                 conn.commit()
         else:
-            df_final.to_excel(caminho_saida, index=False)
+            # 'MetodoGeracao' (coluna de Confiabilidade) é só pra revisão na tela -- não faz
+            # parte do template oficial, então não vai pro Excel exportado.
+            df_final.drop(columns=['MetodoGeracao'], errors='ignore').to_excel(caminho_saida, index=False)
 
 class ManagerPluviometrica(BaseManager):
     """Codificação Pluviométrica: Incremento unitário (+1)"""

@@ -73,8 +73,8 @@ Duas formas de dar entrada nos dados de uma estação nova:
 - **Importar `.mdb` existente**: modo avançado, pra quem já mantém os dados numa base Access no
   formato `Estacoes_Novas`.
 
-Ao final, exporta o resultado em Excel (`.xlsx`) ou Access (`.mdb`), pronto pra importação no
-sistema oficial.
+Ao final, exporta o resultado em Excel (`.xlsx`) ou Access (`.mdb` — gravado direto na tabela
+`Estacao` do template oficial, com os tipos corretos), pronto pra importação no sistema oficial.
 
 ## 🛠️ Para desenvolvedores
 
