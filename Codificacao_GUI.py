@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                            QHBoxLayout, QGridLayout, QLabel, QPushButton, QFileDialog,
                            QTableWidget, QTableWidgetItem, QMessageBox,
                            QProgressBar, QHeaderView, QRadioButton, QButtonGroup, QFrame,
-                           QLineEdit, QComboBox, QCheckBox, QAbstractItemView)
+                           QLineEdit, QComboBox, QCheckBox, QAbstractItemView, QCompleter)
 from PySide6.QtCore import Qt, QThread, Signal, QObject
 from PySide6.QtGui import QFont, QPixmap, QColor, QDoubleValidator
 from Codificacao_Core import (ManagerPluviometrica, ManagerFluviometrica, resource_path,
@@ -243,6 +243,18 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------
     # Painel de cadastro manual (Parte 2 do plano de melhorias)
     # ------------------------------------------------------------------
+    @staticmethod
+    def _tornar_pesquisavel(combo: QComboBox):
+        """Deixa o combo editável com autocompletar por qualquer trecho do texto (não só o
+        início), pra não precisar rolar uma lista de centenas de entidades na mão."""
+        combo.setEditable(True)
+        combo.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        completer = QCompleter(combo.model(), combo)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchFlag.MatchContains)
+        completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
+        combo.setCompleter(completer)
+
     def _criar_grid_tipos(self, campos) -> QWidget:
         """Uma linha por parâmetro: checkbox + Início/Fim próprios (cada parâmetro pode ter
         período de operação diferente dos demais)."""
@@ -310,6 +322,7 @@ class MainWindow(QMainWindow):
             combo.addItem("(não informado)", None)
             for codigo in sorted(ENTIDADES_RESPONSAVEIS):
                 combo.addItem(f"{codigo} — {ENTIDADES_RESPONSAVEIS[codigo]}", codigo)
+            self._tornar_pesquisavel(combo)
 
         self.combo_responsavel_unidade = QComboBox()
         self.combo_operadora_unidade = QComboBox()
@@ -317,6 +330,7 @@ class MainWindow(QMainWindow):
             combo.addItem("(não informado)", None)
             for codigo in sorted(UNIDADES_HIDRO):
                 combo.addItem(UNIDADES_HIDRO[codigo], codigo)
+            self._tornar_pesquisavel(combo)
 
         grid.addWidget(QLabel("Nome:"), 0, 0)
         grid.addWidget(self.input_nome, 0, 1, 1, 3)
@@ -806,6 +820,15 @@ class MainWindow(QMainWindow):
         self.atualizar_tabela()
 
         self.progress.setValue(100)
+
+        avisos = getattr(self.manager, 'avisos_insumo', [])
+        if avisos:
+            QMessageBox.warning(self, "Dados de insumo incompletos",
+                                 "Alguns dados geoespaciais não puderam ser carregados. Os "
+                                 "resultados abaixo foram gerados mesmo assim, mas campos como "
+                                 "Município/Estado/Bacia/Sub-bacia podem estar em branco:\n\n"
+                                 + "\n".join(f"• {a}" for a in avisos))
+
         QMessageBox.information(self, "Sucesso", f"Codificação {tipo_proc} concluída!")
 
         self.btn_exportar.setEnabled(True)

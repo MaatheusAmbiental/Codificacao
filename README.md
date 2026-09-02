@@ -36,7 +36,8 @@ Codificacao_Hidrologica\
 ├── Codificacao_Hidrologica.exe
 ├── .env                  (suas credenciais do banco)
 ├── assets\                (já vem no zip)
-└── insumo\                (baixado à parte, veja passo 3)
+├── mdb\                   (já vem no zip -- template oficial do Access)
+└── insumo\                (copiado à parte da rede, veja passo 3)
 ```
 
 ## 📋 O que o sistema faz
@@ -75,6 +76,7 @@ sistema oficial.
 - Python 3.10+
 - Driver ODBC "SQL Server" e "Microsoft Access Driver (*.mdb, *.accdb)" instalados no Windows
 - Pasta `insumo/` (veja acima) no mesmo diretório do projeto durante o desenvolvimento
+- Pasta `mdb/` (já vem no repositório) com o `template.mdb` oficial
 
 ### Rodando a partir do código-fonte
 ```powershell
@@ -88,8 +90,8 @@ python Codificacao_GUI.py
 build.bat
 ```
 O script instala as dependências, roda o PyInstaller com `Codificacao_Hidrologica.spec` (gera um
-`.exe` único) e copia `assets/` para dentro de `dist\`, ao lado do executável — e `insumo/`
-também, se ela já existir localmente nesse momento (senão, copie manualmente depois).
+`.exe` único) e copia `assets/` e `mdb/` para dentro de `dist\`, ao lado do executável — e
+`insumo/` também, se ela já existir localmente nesse momento (senão, copie manualmente depois).
 
 ## 📦 Estrutura do projeto
 
@@ -103,7 +105,8 @@ Codificacao/
 ├── requirements.txt                # Dependências Python
 ├── .env.example                    # Modelo de configuração do banco (copie para .env)
 ├── assets/                         # Ícone e logos usados na interface
-├── docs/                           # Documentação de referência (inventários ANA)
+├── mdb/                            # Template oficial do Access (template.mdb) — versionado
+├── docs/                           # Documentação de referência (inventários ANA, manual)
 └── insumo/                         # [NÃO VERSIONADO] Dados geoespaciais — veja instruções acima
 ```
 

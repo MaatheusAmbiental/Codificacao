@@ -44,6 +44,9 @@ Thumbs.db
 *.accdb
 *.xlsx
 *.xls
+# Exceção: template oficial do projeto, precisa estar versionado (não é dado de teste)
+!mdb/template.mdb
+!mdb/template.xlsx
 
 # Pasta insumo/ (shapefiles + GPKG, ~22GB) -- distribuída separadamente, não cabe no repositório.
 # Veja o README para onde obter e como organizar localmente.

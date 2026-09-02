@@ -29,7 +29,7 @@ GPKG_BHO_DRENAGEM = r"insumo\geoft_bho6_trecho_drenagem.gpkg"
 CAMADA_BHO_TRECHO = "geoft_bho6_trecho_drenagem" 
 GPKG_MUNICIPIOS = r"insumo\Municipio_IBGE_Hidro.gpkg"
 GPKG_SUBBACIAS_DNAEE = r"insumo\geoft_dnaee_subbacia.gpkg"
-TEMPLATE_MDB = r"insumo\mdb\template.mdb"
+TEMPLATE_MDB = r"mdb\template.mdb"  # ships com o projeto/release, NÃO faz parte da pasta insumo (rede da ANA)
 
 # Sistemas de Referência (Nota Técnica 05/2024)
 CRS_SIRGAS2000 = "EPSG:4674"
@@ -427,15 +427,24 @@ class BaseManager:
         self.sql_conn_str = (f"DRIVER={{{DRIVER_SQL_SERVER}}};SERVER={os.getenv('DB_HOST')};"
                              f"DATABASE={os.getenv('DB_NAME')};UID={os.getenv('DB_USER')};"
                              f"PWD={os.getenv('DB_PASSWORD')};")
-        self.gdf_mun = self._carregar_shape(GPKG_MUNICIPIOS)
-        self.gdf_sub = self._carregar_shape(GPKG_SUBBACIAS_DNAEE)
+        self.avisos_insumo: List[str] = []
+        self.gdf_mun = self._carregar_shape(GPKG_MUNICIPIOS, "Malha de Municípios (IBGE)")
+        self.gdf_sub = self._carregar_shape(GPKG_SUBBACIAS_DNAEE, "Sub-bacias DNAEE")
         self.next_reg_id = self._buscar_ultimo_reg_id()
 
-    def _carregar_shape(self, path: str):
+    def _carregar_shape(self, path: str, nome_amigavel: str):
         full_path = resource_path(path)
-        if os.path.exists(full_path):
+        if not os.path.exists(full_path):
+            self.avisos_insumo.append(
+                f"{nome_amigavel}: arquivo não encontrado em '{full_path}'. "
+                "Município/Estado/Bacia/Sub-bacia ficarão em branco nos resultados."
+            )
+            return None
+        try:
             return gpd.read_file(full_path).to_crs(CRS_SIRGAS2000)
-        return None
+        except Exception as e:
+            self.avisos_insumo.append(f"{nome_amigavel}: falha ao ler o arquivo ({e}).")
+            return None
 
     def _get_access_engine(self, mdb_path: str):
         conn_str = f"DRIVER={{{DRIVER_ACCESS}}};DBQ={mdb_path};"

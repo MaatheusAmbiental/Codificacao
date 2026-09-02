@@ -43,8 +43,9 @@ echo.
 :: 5. COPIA DE RECURSOS EXTERNOS
 :: Codificacao_Hidrologica.spec gera um .exe unico (onefile) -- resource_path() procura
 :: 'assets' e 'insumo' no MESMO diretorio do .exe (dist\), nao numa subpasta com o nome dele.
-echo [FASE 5/5] Copiando pastas 'assets' e 'insumo' para o diretorio final...
+echo [FASE 5/5] Copiando pastas 'assets', 'mdb' e 'insumo' para o diretorio final...
 xcopy "assets" "dist\assets" /E /I /Y > nul
+xcopy "mdb" "dist\mdb" /E /I /Y > nul
 if exist "insumo" xcopy "insumo" "dist\insumo" /E /I /Y > nul
 
 echo.
