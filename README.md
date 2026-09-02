@@ -18,15 +18,21 @@ Não precisa instalar Python nem nada de desenvolvedor. Siga os passos abaixo (o
 1. **Baixe o programa.** Vá até a aba [**Releases**](../../releases) deste repositório e baixe o
    arquivo `.zip` mais recente (algo como `Codificacao_Hidrologica_vX.X.zip`).
 2. **Extraia** o `.zip` em uma pasta no seu computador (ex.: `C:\Codificacao_Hidrologica`).
-3. **Copie a pasta `insumo`** (dados geoespaciais — sub-bacias, malha de rios BHO, municípios).
-   Ela não vem no `.zip` por ser grande (~4 GB). Está disponível na rede interna da ANA em:
+3. **Aponte para a pasta `insumo`** (dados geoespaciais — sub-bacias, malha de rios BHO,
+   municípios). Ela não vem no `.zip` por ser grande (~4 GB) e está disponível na rede interna
+   da ANA em:
    ```
    \\agencia\ana\SGH\CODIH\Base de Dados Geograficos
    ```
-   Copie essa pasta (renomeando para `insumo`, se necessário) pra **dentro da mesma pasta do
-   `Codificacao_Hidrologica.exe`**.
+   Duas formas de usar, sem precisar duplicar os 4 GB em cada máquina:
+   - **Direto da rede (recomendado)**: no `.env` (veja passo 4), defina
+     `INSUMO_DIR=\\agencia\ana\SGH\CODIH\Base de Dados Geograficos` — o programa lê os arquivos
+     direto de lá, sem copiar nada.
+   - **Cópia local**: copie a pasta (renomeando para `insumo`) pra **dentro da mesma pasta do
+     `Codificacao_Hidrologica.exe`**. Mais rápido pra usar depois, mas ocupa espaço em disco.
 4. **Configure o acesso ao banco de dados**: copie o arquivo `.env.example` para `.env` (mesma
-   pasta do `.exe`) e peça as credenciais do banco `HIDRO` pra equipe responsável pelo sistema.
+   pasta do `.exe`), preencha as credenciais do banco `HIDRO` (peça pra equipe responsável) e,
+   se for usar a pasta `insumo` direto da rede, preencha `INSUMO_DIR` também.
 5. **Dê dois cliques em `Codificacao_Hidrologica.exe`** e pronto.
 
 A pasta final deve ficar assim:
@@ -37,7 +43,7 @@ Codificacao_Hidrologica\
 ├── .env                  (suas credenciais do banco)
 ├── assets\                (já vem no zip)
 ├── mdb\                   (já vem no zip -- template oficial do Access)
-└── insumo\                (copiado à parte da rede, veja passo 3)
+└── insumo\                (opcional -- só se você optou pela cópia local, veja passo 3)
 ```
 
 ## 📋 O que o sistema faz

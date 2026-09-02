@@ -396,6 +396,21 @@ def resource_path(relative_path: str) -> str:
     return os.path.join(base_path, relative_path)
 
 
+def resource_path_insumo(relative_path: str) -> str:
+    r"""
+    Resolve caminhos dentro de insumo/ (shapefiles/GPKG). Se a variável INSUMO_DIR estiver
+    definida no .env, aponta direto pra ela -- pode ser um caminho de rede (ex.:
+    \\agencia\ana\SGH\CODIH\Base de Dados Geograficos) ou outra pasta local (ex.: a pasta
+    insumo do projeto, evitando manter uma cópia duplicada dentro de dist\). Sem INSUMO_DIR
+    configurado, cai no comportamento padrão: pasta 'insumo' ao lado do executável/script.
+    """
+    insumo_dir = os.getenv('INSUMO_DIR')
+    if insumo_dir:
+        nome_relativo = os.path.relpath(relative_path, 'insumo')
+        return os.path.join(insumo_dir, nome_relativo)
+    return resource_path(relative_path)
+
+
 def _valor_sql(valor, tipo_coluna: Optional[str] = None):
     """Converte valores vindos do GeoPandas/NumPy (int32, int64, float64...) para tipos nativos
     do Python -- o driver ODBC do Access rejeita tipos numpy como parâmetro de INSERT
@@ -472,7 +487,7 @@ class BaseManager:
         self.next_reg_id = self._buscar_ultimo_reg_id()
 
     def _carregar_shape(self, path: str, nome_amigavel: str):
-        full_path = resource_path(path)
+        full_path = resource_path_insumo(path)
         if not os.path.exists(full_path):
             self.avisos_insumo.append(
                 f"{nome_amigavel}: arquivo não encontrado em '{full_path}'. "
@@ -629,7 +644,7 @@ class ManagerFluviometrica(BaseManager):
     """
     def __init__(self):
         super().__init__()
-        self.path_bho = resource_path(GPKG_BHO_DRENAGEM)
+        self.path_bho = resource_path_insumo(GPKG_BHO_DRENAGEM)
 
     def processar(self, df_input: pd.DataFrame, progress_callback: Optional[Callable[[int], None]] = None,
                   should_continue: Optional[Callable[[], bool]] = None) -> List[Dict]:

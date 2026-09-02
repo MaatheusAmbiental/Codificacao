@@ -117,9 +117,17 @@ Base Hidrográfica Ottocodificada (BHO) e a malha de municípios — não vem de
 <code>\\agencia\ana\SGH\CODIH\Base de Dados Geograficos</code>
 </div>
 <p>
-Copie essa pasta (renomeando para <code>insumo</code>, se necessário) pra <b>dentro da mesma
-pasta do executável</b>, no mesmo nível de <code>Codificacao_Hidrologica.exe</code>.
+Há duas formas de usar essa pasta, sem precisar duplicar 4 GB em cada computador:
 </p>
+<ul>
+    <li><b>Direto da rede (recomendado)</b>: no arquivo <code>.env</code> (veja item 2.3),
+    preencha <code>INSUMO_DIR</code> com o caminho de rede acima — o programa lê os arquivos
+    direto de lá, sem copiar nada pro seu computador.</li>
+    <li><b>Cópia local</b>: copie a pasta (renomeando para <code>insumo</code>, se necessário)
+    pra <b>dentro da mesma pasta do executável</b>, no mesmo nível de
+    <code>Codificacao_Hidrologica.exe</code>. Fica mais rápido de usar depois, mas ocupa espaço
+    em disco.</li>
+</ul>
 
 <h3>2.3. Configurando o acesso ao banco de dados</h3>
 <ol>
@@ -132,6 +140,7 @@ pasta do executável</b>, no mesmo nível de <code>Codificacao_Hidrologica.exe</
     <tr><td><code>DB_NAME</code></td><td>Nome do banco (normalmente <code>HIDRO</code>)</td></tr>
     <tr><td><code>DB_USER</code></td><td>Usuário de acesso ao banco</td></tr>
     <tr><td><code>DB_PASSWORD</code></td><td>Senha correspondente</td></tr>
+    <tr><td><code>INSUMO_DIR</code></td><td>Opcional. Caminho da pasta insumo, se optou por usá-la direto da rede em vez de copiar localmente (item 2.2).</td></tr>
 </table>
 <p>Peça essas credenciais para a equipe responsável pelo sistema, caso ainda não tenha.</p>
 
@@ -144,7 +153,7 @@ Codificacao_Hidrologica\<br/>
 &nbsp;&nbsp;├── .env&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(suas credenciais do banco)<br/>
 &nbsp;&nbsp;├── assets\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(ícones e logos, já vem no zip)<br/>
 &nbsp;&nbsp;├── mdb\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(template oficial do Access, já vem no zip)<br/>
-&nbsp;&nbsp;└── insumo\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(copiado à parte da rede, veja item 2.2)
+&nbsp;&nbsp;└── insumo\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(opcional -- só se optou pela cópia local, veja item 2.2)
 </code>
 </div>
 <p>Dê dois cliques em <code>Codificacao_Hidrologica.exe</code> para abrir o programa.</p>
